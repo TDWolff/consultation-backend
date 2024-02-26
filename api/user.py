@@ -102,6 +102,8 @@ class UserAPI:
             body = request.get_json() # get the body of the request
             uid = body.get('uid') # get the UID (Know what to reference)
             pnum = body.get('pnum')
+            usr = body.get('usr')
+            if usr != uid and usr.lower() != "admin": return {"message":"can't edit"}
             users = User.query.all()
             for user in users:
                 if user.uid == uid:
@@ -116,6 +118,7 @@ class UserAPI:
             ''' Avoid garbage in, error checking '''
             # validate uid, name, and password
             uid = body.get('uid')
+            usr = body.get('usr')
             password = body.get('password')
             if uid is None or len(uid) < 2:
                 return {'message': f'User ID is missing, or is less than 2 characters'}, 400
@@ -126,7 +129,10 @@ class UserAPI:
             if user is None:
                 return {'message': f'User {uid} not found'}, 400
             ''' Delete user '''
-            user.delete()
+            if uid == usr or usr.lower() == "admin":
+                user.delete()
+            else:
+                return {'message':"can't delete other accounts"}
             return {'message': f'User {uid} deleted'}, 200
     
     class _Security(Resource):
