@@ -32,8 +32,7 @@ from projects.projects import app_projects # Blueprint directory import projects
 # Initialize the SQLAlchemy object to work with the Flask app instance
 db.init_app(app)
 
-CORS(app)
-CORS(app, supports_credentials=True, origins='https://tdwolff.github.io')
+CORS(app, origins=['http://localhost:8090', 'http://localhost:8086', 'https://tdwolff.github.io'], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "SEARCH"])
 
 
 # register URIs
@@ -137,14 +136,14 @@ def display():
 def before_request():
     # Check if the request came from a specific origin
     allowed_origin = request.headers.get('Origin')
-    if allowed_origin in ['http://localhost:4100', 'http://localhost:8086', 'https://tdwolff.github.io',]:
+    if allowed_origin in ['http://localhost:8090', 'http://localhost:8086', 'https://tdwolff.github.io', 'http://127.0.0.1:8090/AtlasIndex/']:
         cors._origins = allowed_origin
 
 @app.after_request
 def after_request(response):
-#     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-#     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'false')
     return response
 
 # Create an AppGroup for custom commands
