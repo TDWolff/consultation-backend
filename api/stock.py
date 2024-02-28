@@ -31,7 +31,7 @@ class StocksAPI(Resource):
         def get(self):
             #updates stock price:
             stocks = Stocks.query.all()  
-            api_key = '034ce1b9ccc7ac857fc59ec5665cfc5e'  # Replace with your FMP API key
+            api_key = 'OyGEcU5tCO127eOKHqoraOGY0TNAwlFS'  # Replace with your FMP API key
             for stock in stocks:
                 symbol = stock.symbol
                 url = f'https://financialmodelingprep.com/api/v3/quote/{symbol}?apikey={api_key}'
