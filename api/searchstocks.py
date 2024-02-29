@@ -15,88 +15,15 @@ from matplotlib import pyplot as plt
 from io import BytesIO
 import base64
 import _sqlite3
-from __init__ import db
+from __init__ import db, __init__
 from sqlalchemy.exc import IntegrityError
 
-from model.users import Stocks,User,Stock_Transactions
+
+from model.users import Stocks,User,MissingStock
 
 search_api = Blueprint('search_api', __name__,
                    url_prefix='/api/stock')
 api = Api(search_api)
-
-class MissingStock(Resource):
-    _tablename_ = 'stocks'
-    
-    id = db.Column(db.Integer, primary_key=True)
-
-    _symbol = db.Column(db.String(255), nullable=False)
-    _company = db.Column(db.String(255), nullable=False)
-    _quantity = db.Column(db.Integer, nullable=False)
-    _sheesh = db.Column(db.Integer, nullable=False)
-
-    def __init__(self, symbol, company, quantity, sheesh):
-        self._symbol = symbol
-        self._company = company
-        self._quantity = quantity
-        self._sheesh = sheesh
-
-    @property
-    def symbol(self):
-        return self._symbol
-    
-    @property
-    def company(self):
-        return self._company
-    
-    @property
-    def quantity(self):
-        return self._quantity
-    
-    @property
-    def sheesh(self):
-        return self._sheesh
-    
-    @symbol.setter
-    def symbol(self, symbol):
-        self._symbol = symbol
-
-    @company.setter
-    def company(self, company):
-        self._company = company
-    
-    @quantity.setter
-    def quantity(self, quantity):
-        self._quantity = quantity
-    
-    @sheesh.setter
-    def sheesh(self, sheesh):
-        self._sheesh = sheesh
-
-
-    def create(self):
-        try:
-            # creates a person object from User(db.Model) class, passes initializers
-            db.session.add(self)  # add prepares to persist person object to Users table
-            db.session.commit()  # SqlAlchemy "unit of work pattern" requires a manual commit
-            return self
-        except IntegrityError:
-            db.session.remove()
-            return None
-            
-     # CRUD update: updates user name, password, phone
-    # returns self
-    def update(self, symbol, company, quantity, sheesh):
-        # Check if value is blank and replace with defaults
-        if symbol != "":
-            self._symbol = symbol
-        if company != "":
-            self._company = company
-        if quantity != "":
-            self._quantity = quantity
-        if sheesh != "":
-            self._sheesh = sheesh
-        db.session.commit()
-        return self
 
 
 class SearchAPI(Resource):
@@ -114,14 +41,17 @@ class SearchAPI(Resource):
                 company = body.get('company')
                 quantity = body.get('quantity')
                 sheesh = body.get('sheesh')
-                stocks = Stocks.query.all()
-                for stock in stocks:
-                    if stock.symbol == symbol:
-                        stock.update(company = company if company else "", quantity = quantity if quantity else "", sheesh = sheesh if sheesh else "")
-                        return f"Updated {symbol}"
-                return f"Stock not found"
+                ## Add new row to the sqlite db through the users.py MissingStock class
+                new_stock = Stocks(symbol, company, quantity, sheesh)  # Use Stocks instead of MissingStock
+                db.session.add(new_stock)
+                db.session.commit()
+                response = {
+                    'message': f'{symbol} has been added to the database'
+                }
+                return response, 200
             except Exception as e:
-                return jsonify('Error Occured'),500
+                return {'error': str(e)}, 500
+    api.add_resource(stock, '/missingstock')
     
     class search_stock(Resource):
         def post(self):

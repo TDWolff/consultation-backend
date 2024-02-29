@@ -10,6 +10,104 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 ''' Tutorial: https://www.sqlalchemy.org/library.html#tutorials, try to get into Python shell and follow along '''
 
+class MissingStock(db.Model):
+    _tablename_ = 'stocks'
+    
+    # define the stock schema with "vars" from object
+    id = db.Column(db.Integer, primary_key=True)
+    _symbol = db.Column(db.String(255),unique=False,nullable=False)
+    _company = db.Column(db.String(255),unique=False,nullable=False)
+    _quantity = db.Column(db.Integer,unique=False,nullable=False)
+    _sheesh = db.Column(db.Integer,unique=False,nullable=False)
+    
+    # constructor of a User object, initializes the instance variables within object (self)
+    def __init__(self,symbol,company,quantity,sheesh):
+        self._symbol = symbol
+        self._company = company
+        self._quantity = quantity
+        self._sheesh = sheesh
+# symbol
+    @property
+    def symbol(self):
+        return self._symbol
+    
+    @symbol.setter
+    def symbol(self,symbol):
+        self._symbol = symbol
+#company
+    @property
+    def company(self):
+        return self._company
+    
+    @company.setter
+    def company(self,company):
+        self._company = company
+#quantity
+    @property
+    def quantity(self):
+        return self._quantity
+    
+    @quantity.setter
+    def quantity(self,quantity):
+        self._quantity = quantity
+
+#cost
+    @property
+    def sheesh(self):
+        return self._sheesh
+    
+    @sheesh.setter
+    def sheesh(self,sheesh):
+        self._sheesh = sheesh
+    
+    # output content using str(object) in human readable form, uses getter
+    # output content using json dumps, this is ready for API response
+    def __str__(self):
+        return json.dumps(self.read())
+    
+    # CRUD create/add a new record to the table
+    # returns self or None on error
+    def create(self):
+        try:
+            # creates a person object from User(db.Model) class, passes initializers
+            db.session.add(self)  # add prepares to persist person object to Users table
+            db.session.commit()  # SqlAlchemy "unit of work pattern" requires a manual commit
+            return self
+        except IntegrityError:
+            db.session.remove()
+            return None
+        
+     # CRUD update: updates user name, password, phone
+    # returns self
+    def update(self,symbol="",company="",quantity=None):
+        """only updates values with length"""
+        if len(symbol) > 0:
+            self.symbol = symbol
+        #if sheesh > 0:
+           # self.sheesh = sheesh
+        if len(company) > 0:
+            self.company = company
+        if quantity is not None:
+            self.quantity = quantity
+        
+        db.session.commit()
+        return self
+    
+    # CRUD read converts self to dictionary
+    # returns dictionary
+    def read(self):
+        return {
+            "id": self.id,
+            "symbol": self.symbol,
+            "company": self.company,
+            "quantity": self.quantity,
+            "sheesh": self.sheesh,
+        }
+    # Builds working data for testing
+    def initUsers():
+        with app.app_context():
+            """Create database and tables"""
+            db.create_all()
 # Define the Post class to manage actions in 'posts' table,  with a relationship to 'users' table
 class Post(db.Model):
     __tablename__ = 'posts'
@@ -74,7 +172,7 @@ class Stock_Transactions(db.Model):
     _transaction_amount = db.Column(db.Integer, nullable=False)
     # constructor of a User object, initializes the instance variables within object (self)
 
-    def _init_(self,uid,symbol,transaction_type,quantity,transaction_amount):
+    def __init__(self,uid,symbol,transaction_type,quantity,transaction_amount):
         self._uid = uid
         self._symbol = symbol
         self._transaction_type = transaction_type
@@ -186,7 +284,7 @@ class Stocks(db.Model):
     _sheesh = db.Column(db.Integer,unique=False,nullable=False)
     
     # constructor of a User object, initializes the instance variables within object (self)
-    def _init_(self,symbol,company,quantity,sheesh):
+    def __init__(self,symbol,company,quantity,sheesh):
         self._symbol = symbol
         self._company = company
         self._quantity = quantity
