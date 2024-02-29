@@ -5,7 +5,7 @@ from flask_restful import Api, Resource # used for REST API building
 from datetime import datetime
 from auth_middleware import token_required
 from model.users import User, Stocks, Stock_Transactions
-from sqlalchemy import func, case
+from sqlalchemy import func, case, select
 #from auth_middleware1 import token_required1
 import sqlite3
 from __init__ import app, db, cors, dbURI
@@ -173,34 +173,22 @@ class StocksAPI(Resource):
             ##orginalquantity = body.get('avaliablequantity')
             newquantity = body.get('newquantity')
             transactiontype= 'buy'
-            ##attributes = {'transaction_date': current_timestamp}
             
 
-# Print or use the variable as needed
             
             ## update for stocks table to change the amound of stocks left
             stocks = Stocks.query.all()
             json_ready = [stock.read() for stock in stocks]
             list1 = [item for item in json_ready if item.get('symbol') == symbol]
-            #users = User.query.all()
-            #users = User.query.filter(User._uid == uid).all()
-            #user_ids = [user.id for user in User.query.filter(User._uid == uid).first()]
-            #user_ids = User.query.filter(User._uid == uid).first()
+           
             user_ids = User.query.filter(User._uid == uid).value(User.id)
           
             print(user_ids)
-            #json_ready_user1 = [user.read() for user in users]
-            #list2 = [item for item in json_ready_user1 if item.get('uid') == uid]
-            ##print(list2)
-            #usermoney = list2[0]['stockmoney']
-            #usermoney = [user.stockmoney for user in User.query.filter(User._uid == uid ).first()]
-            #usermoney = User.query.filter(User._uid == uid ).first()
+           
             usermoney = User.query.filter(User._uid == uid).value(User._stockmoney)
             
             print(usermoney)
-            #currentstockmoney = list1[0]['sheesh']
-            #currentstockmoney = [stocks.sheesh for stocks in Stocks.query.filter(Stocks._symbol == symbol ).first()]
-            #currentstockmoney = Stocks.query.filter(Stocks._symbol == symbol ).first()
+          
             currentstockmoney = Stocks.query.filter(Stocks._symbol == symbol).value(Stocks._sheesh)
             print(currentstockmoney)
             if (usermoney > currentstockmoney*quantitytobuy):
@@ -212,15 +200,11 @@ class StocksAPI(Resource):
                 tableid.update(quantity=newquantity )
                 db.session.commit()
                 ## updates user money
-                #tableid_user = list2[0]['id']
                 updatedusermoney = usermoney - (currentstockmoney*quantitytobuy)
                 print(updatedusermoney)
-                #tableid_user = User.query.get(tableid_user)
                 tableid_user = User.query.get(user_ids)
                 print(tableid_user)
-                #tableid_user.update(stockmoney=updatedusermoney)
                 tableid_user.stockmoney = updatedusermoney
-                #User.update(stockmoney=updatedusermoney)
                 db.session.commit()
                 ## creates log for transaction
                 transactionamount = (currentstockmoney*quantitytobuy)
@@ -334,39 +318,180 @@ class StocksAPI(Resource):
     #        ]
     #        #return jsonify({"portfolio": portfolio_data}), 200
     #        return {"portfolio": portfolio_data}, 200
+    #class _Portfolio23(Resource):
+    #    def post(self):
+    #        body = request.get_json()
+    #        uid = body.get('uid')
+    #        result = db.session.query(
+    #            Stock_Transactions._symbol.label("SYMBOL"),
+    #            (func.sum(case([(Stock_Transactions._transaction_type == 'buy', Stock_Transactions._quantity)], else_=0)) -
+    #            func.sum(case([(Stock_Transactions._transaction_type == 'sell', Stock_Transactions._quantity)], else_=0))
+    #            ).label("TOTAL_QNTY"),
+    #            ((func.sum(case([(Stock_Transactions._transaction_type == 'buy', Stock_Transactions._quantity)], else_=0)) -
+    #            func.sum(case([(Stock_Transactions._transaction_type == 'sell', Stock_Transactions._quantity)], else_=0))) *
+    #            (Stocks.query.filter(Stocks._symbol == Stock_Transactions._symbol.label("SYMBOL")).value(Stocks._sheesh))
+    #            ).label("VALUE"),
+    #            ).join(Stocks, Stocks._symbol == Stock_Transactions._symbol).filter(Stock_Transactions._uid == uid).group_by(Stock_Transactions._symbol).having(func.sum(case([(Stock_Transactions._transaction_type == 'buy', Stock_Transactions._quantity)],
+    #           #.having(func.sum(Stock_Transactions._quantity) > 0) \
+    #        
+    #     else_=-Stock_Transactions._quantity)
+    #            ) > 0).all()
+    #        print("This is Result")
+    #        print(result)
+    #        for row in result:
+    #            print(f"Symbol: {row.SYMBOL}, Total Quantity: {row.TOTAL_QNTY}, Value: {row.VALUE}")
+    #        portfolio_data = [
+    #            {
+    #                "SYMBOL": row.SYMBOL,
+    #                "TOTAL_QNTY": row.TOTAL_QNTY,
+    #                "VALUE": row.VALUE
+    #            }
+    #            for row in result
+    #        ]
+    #        return {"portfolio": portfolio_data}, 200
+    #
+    #class _Portfolio3(Resource):
+    #    def post(self):
+    #        body = request.get_json()
+    #        uid = body.get('uid')
+    #        result = db.session.query(
+    #            Stock_Transactions._symbol.label("SYMBOL"),
+    #            (func.sum(case([(Stock_Transactions._transaction_type == 'buy', Stock_Transactions._quantity)], else_=0)) -
+    #            func.sum(case([(Stock_Transactions._transaction_type == 'sell', Stock_Transactions._quantity)], else_=0))
+    #            ).label("TOTAL_QNTY"),
+    #            ((func.sum(case([(Stock_Transactions._transaction_type == 'buy', Stock_Transactions._quantity)], else_=0)) -
+    #            func.sum(case([(Stock_Transactions._transaction_type == 'sell', Stock_Transactions._quantity)], else_=0))) *
+    #            (Stocks.query.filter(Stocks._symbol == Stock_Transactions._symbol.label("SYMBOL")).value(Stocks._sheesh))
+    #            ).label("VALUE"),
+    #            ).join(Stocks, Stocks._symbol == Stock_Transactions._symbol).filter(Stock_Transactions._uid == uid).group_by(Stock_Transactions._symbol).having(func.sum(case([(Stock_Transactions._transaction_type == 'buy', Stock_Transactions._quantity)],
+    #            #.having(func.sum(Stock_Transactions._quantity) > 0) \
+#
+    #            else_=-Stock_Transactions._quantity)
+    #            ) > 0).all()
+    #        print("This is Result")
+    #        print(result)
+    #        for row in result:
+    #            print(f"Symbol: {row.SYMBOL}, Total Quantity: {row.TOTAL_QNTY}, Value: {row.VALUE}")
+    #        portfolio_data = [
+    #            {
+    #                "SYMBOL": row.SYMBOL,
+    #                "TOTAL_QNTY": row.TOTAL_QNTY,
+    #                "VALUE": row.VALUE
+    #            }
+    #            for row in result
+    #        ]
+    #        
+    #        print("This is portfolio_data")
+    #        print(portfolio_data)
+    #        return {"portfolio": portfolio_data}, 200
+    #
     class _Portfolio2(Resource):
         def post(self):
             body = request.get_json()
             uid = body.get('uid')
+            list1 = Stock_Transactions.query.filter(Stock_Transactions._uid == uid).distinct(Stock_Transactions._symbol).all()
 
-            result = db.session.query(
-                Stock_Transactions._symbol.label("SYMBOL"),
-                (func.sum(case([(Stock_Transactions._transaction_type == 'buy', Stock_Transactions._quantity)], else_=0)) -
-                func.sum(case([(Stock_Transactions._transaction_type == 'sell', Stock_Transactions._quantity)], else_=0))
-                ).label("TOTAL_QNTY"),
-                ((func.sum(case([(Stock_Transactions._transaction_type == 'buy', Stock_Transactions._quantity)], else_=0)) -
-                func.sum(case([(Stock_Transactions._transaction_type == 'sell', Stock_Transactions._quantity)], else_=0))) *
-                (Stocks.query.filter(Stocks._symbol == Stock_Transactions._symbol).value(Stocks._sheesh))
-                ).label("VALUE"),
-                ).join(Stocks, Stocks._symbol == Stock_Transactions._symbol).filter(Stock_Transactions._uid == uid).group_by(Stock_Transactions._symbol).having(func.sum(case([(Stock_Transactions._transaction_type == 'buy', Stock_Transactions._quantity)],
-               #.having(func.sum(Stock_Transactions._quantity) > 0) \
-            
-         else_=-Stock_Transactions._quantity)
-                ) > 0).all()
-            print("This is Result")
-            print(result)
-            for row in result:
-                print(f"Symbol: {row.SYMBOL}, Total Quantity: {row.TOTAL_QNTY}, Value: {row.VALUE}")
-
-            portfolio_data = [
-                {
-                    "SYMBOL": row.SYMBOL,
-                    "TOTAL_QNTY": row.TOTAL_QNTY,
-                    "VALUE": row.VALUE
-                }
-                for row in result
-            ]
+               # Extracting _symbol values from the query result
+            symbols_list = list(set(row._symbol for row in list1))
+            print("this is list:")
+            print(symbols_list)
+            i = 0
+            portfolio_data = []
+            for i in symbols_list:
+                #print(i)
+                # to find # of stock bought
+                buyquantity = (
+                    db.session.query(
+                        Stock_Transactions._symbol,
+                        func.sum(Stock_Transactions._quantity).label("total_quantity")
+                    )
+                    .filter(Stock_Transactions._uid == uid, Stock_Transactions._symbol == i, Stock_Transactions._transaction_type == 'buy')
+                    .group_by(Stock_Transactions._symbol)
+                    .all()
+                )
+                #print("this is buyquantity")
+                #print(buyquantity[0][1])
+                quantitybuy= buyquantity[0][1]
+                # to find stocks sold
+                sellquantity = (
+                    db.session.query(
+                        Stock_Transactions._symbol,
+                        func.sum(Stock_Transactions._quantity).label("total_quantity")
+                    )
+                    .filter(Stock_Transactions._uid == uid, Stock_Transactions._symbol == i,Stock_Transactions._transaction_type == 'sell' )
+                    .group_by(Stock_Transactions._symbol)
+                    .all()
+                )
+                #print("this is sellquantity")
+                value = 0
+                #checks if the is a sell
+                if not sellquantity:
+                    totalstock = quantitybuy
+                    if totalstock == 0:
+                        pass
+                    else:
+                        print("symbol:")
+                        print(i)
+                        print("this is quantity:")
+                        print(quantitybuy)
+                        stockprice = Stocks.query.filter(Stocks._symbol == i).value(Stocks._sheesh)
+                        value = totalstock*stockprice
+                        print("this is value:")
+                        print(value)
+                        payload = {
+                            "SYMBOL": i,
+                            "TOTAL_QNTY": totalstock,
+                            "VALUE": value
+                        }
+                        #for i in symbols_list
+                        
+                        portfolio_data.append(payload)      
+                        print("this is portfolio_data:")
+                        print(portfolio_data)   
+                else:
+                    quantitysell = sellquantity[0][1]
+                    totalstock = quantitybuy -quantitysell
+                    if totalstock == 0:
+                        pass
+                    else:
+                        
+                        #    print(sellquantity)
+                        #value
+                        #print("total quantity:")
+                        #print(totalstock)
+                        stockprice = Stocks.query.filter(Stocks._symbol == i).value(Stocks._sheesh)
+                        value = totalstock*stockprice
+                        print("this is symbol")
+                        print(i)
+                        print("this is quantity")
+                        print(totalstock)
+                        print("this is value")
+                        print(value)
+                        payload = {
+                            "SYMBOL": i,
+                            "TOTAL_QNTY": totalstock,
+                            "VALUE": value
+                        }
+                        
+                        #for i in symbols_list
+                        
+                        portfolio_data.append(payload)      
+                        print("this is portfolio_data:")
+                        print(portfolio_data)
             return {"portfolio": portfolio_data}, 200
+
+                    
+
+                
+                        
+                    
+                    
+                
+                
+            
+                
+                
+            
 
 
     class _SellTransaction(Resource):
