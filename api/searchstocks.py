@@ -14,15 +14,17 @@ matplotlib.use('Agg')  # Use the Agg backend
 from matplotlib import pyplot as plt
 from io import BytesIO
 import base64
+import _sqlite3
+from __init__ import db, __init__
+from sqlalchemy.exc import IntegrityError
 
 
-
-
-from model.users import Stocks,User,Stock_Transactions
+from model.users import Stocks,User,MissingStock
 
 search_api = Blueprint('search_api', __name__,
                    url_prefix='/api/stock')
 api = Api(search_api)
+
 
 class SearchAPI(Resource):
     def __init__(self, name, import_name, **kwargs):
@@ -30,6 +32,27 @@ class SearchAPI(Resource):
 
         self.route('/search', methods=['POST'])(self.search_stock)
 
+
+    class stock(Resource):
+        def put(self):
+            try:
+                body = request.get_json()
+                symbol = body.get('symbol')
+                company = body.get('company')
+                quantity = body.get('quantity')
+                sheesh = body.get('sheesh')
+                ## Add new row to the sqlite db through the users.py MissingStock class
+                new_stock = Stocks(symbol, company, quantity, sheesh)  # Use Stocks instead of MissingStock
+                db.session.add(new_stock)
+                db.session.commit()
+                response = {
+                    'message': f'{symbol} has been added to the database'
+                }
+                return response, 200
+            except Exception as e:
+                return {'error': str(e)}, 500
+    api.add_resource(stock, '/missingstock')
+    
     class search_stock(Resource):
         def post(self):
             try: 
