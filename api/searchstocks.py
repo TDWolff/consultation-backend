@@ -60,7 +60,7 @@ class SearchAPI(Resource):
                 symbol = data['symbol']
 
                 # Make a request to the FMP API to get stock information
-                api_key = '034ce1b9ccc7ac857fc59ec5665cfc5e'  # Replace with your FMP API key
+                api_key = 'OyGEcU5tCO127eOKHqoraOGY0TNAwlFS'  # Replace with your FMP API key
                 url = f'https://financialmodelingprep.com/api/v3/quote/{symbol}?apikey={api_key}'
                 response = requests.get(url)
                 stock_data = response.json()
@@ -108,7 +108,7 @@ class SearchAPI(Resource):
                 symbol = data['symbol']
 
                 # Make a request to the FMP API to get historical data
-                api_key = '034ce1b9ccc7ac857fc59ec5665cfc5e'  # Replace with your FMP API key
+                api_key = 'OyGEcU5tCO127eOKHqoraOGY0TNAwlFS'  # Replace with your FMP API key
                 url = f'https://financialmodelingprep.com/api/v3/historical-price-full/{symbol}?apikey={api_key}'
                 response = requests.get(url)
                 historical_data = response.json()
