@@ -60,13 +60,15 @@ class SearchAPI(Resource):
                 symbol = data['symbol']
 
                 # Make a request to the FMP API to get stock information
-                api_key = 'OyGEcU5tCO127eOKHqoraOGY0TNAwlFS'  # Replace with your FMP API key
+                api_key = 'DKBfGqYqZgKp30ijwybvGeoIUmXK4OWq'  # Replace with your FMP API key
                 url = f'https://financialmodelingprep.com/api/v3/quote/{symbol}?apikey={api_key}'
                 response = requests.get(url)
                 stock_data = response.json()
 
                 # if response.status_code != 200:
                 #     return {'error': 'Error Occured'}
+                if not stock_data:
+                    return jsonify('Error Occured While Fetching Data')
                 
                 stock_info = {
                     'symbol': stock_data[0]['symbol'],
@@ -97,7 +99,8 @@ class SearchAPI(Resource):
 
                 return jsonify(stock_info)
             except Exception as e:
-                return jsonify('Error Occured')
+                print(str(e))
+                return jsonify('Error Occured ' + str(e))
             
     api.add_resource(search_stock, '/search')
 
@@ -108,7 +111,7 @@ class SearchAPI(Resource):
                 symbol = data['symbol']
 
                 # Make a request to the FMP API to get historical data
-                api_key = 'OyGEcU5tCO127eOKHqoraOGY0TNAwlFS'  # Replace with your FMP API key
+                api_key = 'DKBfGqYqZgKp30ijwybvGeoIUmXK4OWq'  # Replace with your FMP API key
                 url = f'https://financialmodelingprep.com/api/v3/historical-price-full/{symbol}?apikey={api_key}'
                 response = requests.get(url)
                 historical_data = response.json()
