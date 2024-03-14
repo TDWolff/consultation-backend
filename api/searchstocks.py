@@ -42,6 +42,7 @@ class SearchAPI(Resource):
                 quantity = body.get('quantity')
                 sheesh = body.get('sheesh')
                 ## Add new row to the sqlite db through the users.py MissingStock class
+                print(symbol, company, quantity, sheesh)
                 new_stock = Stocks(symbol, company, quantity, sheesh)  # Use Stocks instead of MissingStock
                 db.session.add(new_stock)
                 db.session.commit()
