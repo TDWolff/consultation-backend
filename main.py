@@ -28,6 +28,7 @@ from model.players import initPlayers
 from model.crypto import Transactions
 # setup App pages
 from projects.projects import app_projects # Blueprint directory import projects definition
+from model.bert import bertinit
 
 
 
@@ -151,6 +152,7 @@ custom_cli = AppGroup('custom', help='Custom commands')
 def generate_data():
     initUsers()
     initPlayers()
+    bertinit()
 
 
 

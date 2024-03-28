@@ -20,6 +20,7 @@ from PIL import Image
 import io
 
 from flask_restful import Api, Resource
+from model.bert import process_image, generate_text, generate_text_image, label_encoder
 
 bert = Blueprint('bert', __name__, url_prefix='/api/bert')
 api = Api(bert)
@@ -36,31 +37,6 @@ genai.configure(api_key=GOOGLE_API_KEY)
 g_model = genai.GenerativeModel('gemini-1.0-pro-latest')
 chat = g_model.start_chat(history=[])
 
-def process_image(image_file):
-    image = Image.open(io.BytesIO(image_file)).convert('RGB')  # ensure the image has 3 channels
-    image = image.resize((64, 64))
-    image = np.array(image) / 255.0  # normalize the RGB values
-    image = np.expand_dims(image, axis=0)  # add an extra dimension for batch size
-    prediction = model.predict(image)
-    label_index = np.argmax(prediction)
-    label = label_encoder.inverse_transform([label_index])
-    return label[0]
-
-def generate_text_image(image_file):
-    try:
-        object_label = process_image(image_file)
-        response = chat.send_message(f"In one short, response, what is this an image of? {object_label}. Respond like so, This is a picture of a input_object here.",
-                                     safety_settings={'HARASSMENT':'block_none'})
-        return response.text
-    except Exception as e:
-        return f"An Error Occurred in Image Text Gen"
-
-def generate_text(input_text):
-    try:
-        response = chat.send_message("In one brief sentence, " + input_text, safety_settings={'HARASSMENT':'block_none', 'HATE_SPEECH':'block_none'})
-        return response.text
-    except Exception as e:
-        return f"I can't provide information about this topic, lets move on and start a new conversation."
 
 class genai(Resource):
     class Gentext(Resource):
