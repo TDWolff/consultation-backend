@@ -1,8 +1,32 @@
+# ***///Flask API Testing Section///***
+
+from flask import Flask, render_template, Blueprint, jsonify, request
+import requests
+from flask_cors import CORS
+import json, jwt
+from flask import Blueprint, request, jsonify, current_app, Response
+from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_restful import Api, Resource # used for REST API building
+import matplotlib
+matplotlib.use('Agg')  # Use the Agg backend
+
+
 import cv2
 import tensorflow as tf
 from PIL import Image
 import numpy as np
 import google.generativeai as genai
+import pickle
+from PIL import Image
+import io
+
+from flask_restful import Api, Resource
+
+bert = Blueprint('bert', __name__, url_prefix='/api/bert')
+api = Api(bert)
+
+with open('model/ml/label_encoder.pkl', 'rb') as f:
+    label_encoder = pickle.load(f)
 
 # Load your model
 model = tf.keras.models.load_model('model/ml/cocomodel.h5')
@@ -10,49 +34,55 @@ model = tf.keras.models.load_model('model/ml/cocomodel.h5')
 GOOGLE_API_KEY = "AIzaSyBlvtWW_aWn7OTsuSJZXNrqJlR-QP0sqH4"
 genai.configure(api_key=GOOGLE_API_KEY)
 
-g_model = genai.GenerativeModel('gemini-pro')
+g_model = genai.GenerativeModel('gemini-1.0-pro-latest')
 chat = g_model.start_chat(history=[])
 
-def process_image(image):
-    image = Image.fromarray(image).convert('RGB')
+def process_image(image_file):
+    image = Image.open(io.BytesIO(image_file)).convert('RGB')  # ensure the image has 3 channels
     image = image.resize((64, 64))
-    image = np.expand_dims(image, axis=0)
+    image = np.array(image) / 255.0  # normalize the RGB values
+    image = np.expand_dims(image, axis=0)  # add an extra dimension for batch size
     prediction = model.predict(image)
-    # Assuming your model returns a label directly
-    return prediction
+    label_index = np.argmax(prediction)
+    label = label_encoder.inverse_transform([label_index])
+    return label[0]
 
-def capture_image():
-    cap = cv2.VideoCapture(0)
-
+def generate_text_image(image_file):
     try:
-        while True:
-            _, frame = cap.read()
-
-            cv2.imshow('Press "q" to capture image', frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                object_label = process_image(frame)
-                generate_text(f"What is this? {object_label}")
-                break
-    finally:
-        cap.release()
-        cv2.destroyAllWindows()
+        object_label = process_image(image_file)
+        response = chat.send_message(f"In one short, response, what is this an image of? {object_label}. Respond like so, This is a picture of a input_object here.",
+                                     safety_settings={'HARASSMENT':'block_none'})
+        return response.text
+    except Exception as e:
+        return f"An Error Occurred in Image Text Gen"
 
 def generate_text(input_text):
     try:
-        if input_text.startswith("What is this?"):
-            response = chat.send_message(f"In one short sentence, this is a picture of {input_text[13:]}")
-        else:
-            response = chat.send_message(input_text)
-        print(f"Model: {response.text}\n")
-    except (genai.types.generation_types.StopCandidateException, genai.types.generation_types.BlockedPromptException) as _:
-        print("Model: I'm sorry, but I can't provide information on that topic.\n")
+        response = chat.send_message("In one brief sentence, " + input_text, safety_settings={'HARASSMENT':'block_none', 'HATE_SPEECH':'block_none'})
+        return response.text
+    except Exception as e:
+        return f"I can't provide information about this topic, lets move on and start a new conversation."
 
-while True:
-    command = input("You: ")
-    if command.lower().__contains__("take a picture"):
-        capture_image()
-    elif command.lower() == "exit":
-        print("Model: Goodbye!")
-        break
-    else:
-        generate_text(command)
+class genai(Resource):
+    class Gentext(Resource):
+        def post(self):
+            try:
+                data = request.get_json()
+                response_text = generate_text(data['text'])
+                return {'response': response_text}, 200
+            except Exception as e:
+                return {'error': str(e)}, 500
+
+    api.add_resource(Gentext, '/gen')
+
+    class Genimage(Resource):
+        def post(self):
+            try:
+                image_file = request.files['image'].read()
+                response_text = generate_text_image(image_file)
+                return {'response': response_text}, 200
+            except Exception as e:
+                return {'error': str(e)}, 500
+
+    api.add_resource(Genimage, '/genimage')
+
