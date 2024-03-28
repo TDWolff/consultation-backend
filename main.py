@@ -20,7 +20,7 @@ from api.house import house_api
 from api.stock import stocks_api
 from api.cryptocode import crypto_api
 from api.titanic import titanic_api
-from api.bert import bert
+from api.haus import haus_api
 
 # database migrations
 from model.users import initUsers
@@ -34,7 +34,7 @@ from projects.projects import app_projects # Blueprint directory import projects
 # Initialize the SQLAlchemy object to work with the Flask app instance
 db.init_app(app)
 
-CORS(app, origins=['http://localhost:8090', 'http://localhost:8899', 'https://tdwolff.github.io'], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "SEARCH"])
+CORS(app, origins=['http://localhost:8090', 'http://localhost:8086', 'https://tdwolff.github.io'], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "SEARCH"])
 
 
 # register URIs
@@ -46,7 +46,7 @@ app.register_blueprint(house_api)
 app.register_blueprint(stocks_api)
 app.register_blueprint(crypto_api)
 app.register_blueprint(titanic_api)
-app.register_blueprint(bert)
+app.register_blueprint(haus_api)
 
 
 @app.errorhandler(404)  # catch for URL not found
@@ -89,7 +89,7 @@ def search():
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
     # Define your site variable here
-    site = {'baseurl': 'http://localhost:8899'}
+    site = {'baseurl': 'http://localhost:8086'}
 
     if request.method == 'POST':
         uid = request.form.get('uid')
@@ -105,30 +105,30 @@ def register():
 @app.route('/signin/', methods=['GET', 'POST'])
 def signin():
     # Define your site variable here
-    site = {'baseurl': 'http://localhost:8899'}
+    site = {'baseurl': 'http://localhost:8086'}
     return render_template('signin.html', site=site)
 
 @app.route('/help/', methods=['GET', 'POST'])
 def help():
     # Define your site variable here
-    site = {'baseurl': 'http://localhost:8899'}
+    site = {'baseurl': 'http://localhost:8086'}
     return render_template('help.html', site=site)
 
 @app.route('/logout/', methods=['GET', 'POST'])
 def logout():
     # Define your site variable here
-    site = {'baseurl': 'http://localhost:8899'}
+    site = {'baseurl': 'http://localhost:8086'}
     return render_template('logout.html', site=site)
 
 @app.route('/profile/', methods=['GET', 'POST'])
 def profile():
     # Define your site variable here
-    site = {'baseurl': 'http://localhost:8899'}
+    site = {'baseurl': 'http://localhost:8086'}
     return render_template('profile.html', site=site)
 
 @app.route('/display/', methods=['GET'])
 def display():
-    site = {'baseurl': 'http://localhost:8899'}
+    site = {'baseurl': 'http://localhost:8086'}
     return render_template('getusers.html', site=site)
 
 
@@ -160,4 +160,4 @@ app.cli.add_command(custom_cli)
 # this runs the application on the development server
 if __name__ == "__main__":
     # change name for testing
-    app.run(debug=True, host="0.0.0.0", port="8899")
+    app.run(debug=True, host="0.0.0.0", port="8086")
