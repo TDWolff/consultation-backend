@@ -11,7 +11,6 @@ import matplotlib
 matplotlib.use('Agg')  # Use the Agg backend
 
 
-import cv2
 import tensorflow as tf
 from PIL import Image
 import numpy as np
