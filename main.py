@@ -8,6 +8,7 @@ from migrate import initHouses, initImages
 from flask_cors import CORS
 
 
+
 # import "packages" from "this" project
 from __init__ import app, db, cors  # Definitions initialization
 
@@ -22,6 +23,7 @@ from api.cryptocode import crypto_api
 from api.titanic import titanic_api
 from api.haus import haus_api
 from api.Soccer import soccer_api
+from api.NBA import NBA_api
 
 # database migrations
 from model.users import initUsers
@@ -50,6 +52,7 @@ app.register_blueprint(crypto_api)
 app.register_blueprint(titanic_api)
 app.register_blueprint(haus_api)
 app.register_blueprint(soccer_api)
+app.register_blueprint(NBA_api)
 
 @app.errorhandler(404)  # catch for URL not found
 def page_not_found(e):
