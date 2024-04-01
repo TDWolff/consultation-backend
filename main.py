@@ -21,6 +21,8 @@ from api.stock import stocks_api
 from api.cryptocode import crypto_api
 from api.titanic import titanic_api
 from api.haus import haus_api
+from api.Lacrosse import Lacrosse_api
+
 
 # database migrations
 from model.users import initUsers
@@ -48,6 +50,7 @@ app.register_blueprint(stocks_api)
 app.register_blueprint(crypto_api)
 app.register_blueprint(titanic_api)
 app.register_blueprint(haus_api)
+app.register_blueprint(Lacrosse_api)
 
 
 @app.errorhandler(404)  # catch for URL not found
