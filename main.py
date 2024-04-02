@@ -54,7 +54,6 @@ app.register_blueprint(NFL_api)
 app.register_blueprint(haus_api)
 app.register_blueprint(soccer_api)
 app.register_blueprint(NBA_api)
-app.register_blueprint(NFL_api)
 
 @app.errorhandler(404)  # catch for URL not found
 def page_not_found(e):
