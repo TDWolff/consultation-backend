@@ -22,9 +22,9 @@ from api.stock import stocks_api
 from api.cryptocode import crypto_api
 from api.titanic import titanic_api
 from api.haus import haus_api
+from api.NFL import NFL_api
 from api.NBA import NBA_api
 from api.Soccer import soccer_api
-
 # database migrations
 from model.users import initUsers
 from model.players import initPlayers
@@ -50,9 +50,11 @@ app.register_blueprint(house_api)
 app.register_blueprint(stocks_api)
 app.register_blueprint(crypto_api)
 app.register_blueprint(titanic_api)
+app.register_blueprint(NFL_api)
 app.register_blueprint(haus_api)
 app.register_blueprint(soccer_api)
 app.register_blueprint(NBA_api)
+app.register_blueprint(NFL_api)
 
 @app.errorhandler(404)  # catch for URL not found
 def page_not_found(e):
