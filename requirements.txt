@@ -13,3 +13,4 @@ matplotlib
 geopy
 google
 google-generativeai
+scikit-learn
