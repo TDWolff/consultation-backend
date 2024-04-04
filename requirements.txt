@@ -11,3 +11,6 @@ PyJWT
 pandas
 matplotlib
 geopy
+google
+google-generativeai
+scikit-learn
