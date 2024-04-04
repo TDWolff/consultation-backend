@@ -26,6 +26,8 @@ from api.NFL import NFL_api
 from api.NBA import NBA_api
 from api.Soccer import soccer_api
 from api.Lacrosse import Lacrosse_api
+from api.Medical import medical_api
+from api.bert import bert
 
 # database migrations
 from model.users import initUsers
@@ -33,14 +35,13 @@ from model.players import initPlayers
 from model.crypto import Transactions
 # setup App pages
 from projects.projects import app_projects # Blueprint directory import projects definition
-from model.bert import bertinit
 
 
 
 # Initialize the SQLAlchemy object to work with the Flask app instance
 db.init_app(app)
 
-CORS(app, origins=['http://localhost:8090', 'http://localhost:8086', 'https://tdwolff.github.io'], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "SEARCH"])
+CORS(app, origins=['http://localhost:8090', 'http://localhost:8899', 'https://tdwolff.github.io'], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "SEARCH"])
 
 
 # register URIs
@@ -57,6 +58,8 @@ app.register_blueprint(haus_api)
 app.register_blueprint(soccer_api)
 app.register_blueprint(NBA_api)
 app.register_blueprint(Lacrosse_api)
+app.register_blueprint(medical_api)
+app.register_blueprint(bert)
 
 @app.errorhandler(404)  # catch for URL not found
 def page_not_found(e):

@@ -9,17 +9,13 @@ class Predict(Resource):
     def post(self):
         # Get the team data from the request
         data = request.get_json()
-
         # Get the team names from the data
         team1 = data.get('team1')
         team2 = data.get('team2')
-
         # Get the singleton instance of the LacrosseScoreModel
         lacrosse_model = LacrosseScoreModel.get_instance()
-
         # Predict the winner likelihood of the lacrosse game
         prediction = lacrosse_model.predict_winner(team1, team2)
-
         return jsonify(prediction)
 
 # Add the Predict resource to the API with the /predict endpoint
