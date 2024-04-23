@@ -163,7 +163,6 @@ custom_cli = AppGroup('custom', help='Custom commands')
 def generate_data():
     initUsers()
     initPlayers()
-    bertinit()
 
 
 

@@ -26,8 +26,13 @@ def bertinit(self):
 
 with open('model/ml/label_encoder.pkl', 'rb') as f:
     label_encoder = pickle.load(f)
-# Load your model
-model = tf.keras.models.load_model('model/ml/cocomodel.h5')
+
+try:
+    model = tf.keras.models.load_model('model/ml/cocomodel.h5')
+    print('Model loaded')
+except Exception as e:
+    print('Model not loaded')
+    model = None
 
 GOOGLE_API_KEY = "AIzaSyBlvtWW_aWn7OTsuSJZXNrqJlR-QP0sqH4"
 genai.configure(api_key=GOOGLE_API_KEY)
