@@ -101,7 +101,7 @@ def search():
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
     # Define your site variable here
-    site = {'baseurl': 'http://localhost:8086'}
+    site = {'baseurl': 'http://localhost:8123'}
 
     if request.method == 'POST':
         uid = request.form.get('uid')
@@ -117,30 +117,30 @@ def register():
 @app.route('/signin/', methods=['GET', 'POST'])
 def signin():
     # Define your site variable here
-    site = {'baseurl': 'http://localhost:8086'}
+    site = {'baseurl': 'http://localhost:8123'}
     return render_template('signin.html', site=site)
 
 @app.route('/help/', methods=['GET', 'POST'])
 def help():
     # Define your site variable here
-    site = {'baseurl': 'http://localhost:8086'}
+    site = {'baseurl': 'http://localhost:8123'}
     return render_template('help.html', site=site)
 
 @app.route('/logout/', methods=['GET', 'POST'])
 def logout():
     # Define your site variable here
-    site = {'baseurl': 'http://localhost:8086'}
+    site = {'baseurl': 'http://localhost:8123'}
     return render_template('logout.html', site=site)
 
 @app.route('/profile/', methods=['GET', 'POST'])
 def profile():
     # Define your site variable here
-    site = {'baseurl': 'http://localhost:8086'}
+    site = {'baseurl': 'http://localhost:8123'}
     return render_template('profile.html', site=site)
 
 @app.route('/display/', methods=['GET'])
 def display():
-    site = {'baseurl': 'http://localhost:8086'}
+    site = {'baseurl': 'http://localhost:8123'}
     return render_template('getusers.html', site=site)
 
 
@@ -172,4 +172,4 @@ app.cli.add_command(custom_cli)
 # this runs the application on the development server
 if __name__ == "__main__":
     # change name for testing
-    app.run(debug=True, host="0.0.0.0", port="8086")
+    app.run(debug=True, host="0.0.0.0", port="8123")
