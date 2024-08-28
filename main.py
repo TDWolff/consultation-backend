@@ -16,23 +16,11 @@ from __init__ import app, db, cors  # Definitions initialization
 # setup APIs
 from api.user import user_api # Blueprint import api definition
 from api.player import player_api
-from api.searchstocks import search_api
-from api.house import house_api
-from api.stock import stocks_api
-from api.cryptocode import crypto_api
-from api.titanic import titanic_api
-from api.haus import haus_api
-from api.NFL import NFL_api
-from api.NBA import NBA_api
-from api.Soccer import soccer_api
-from api.Lacrosse import Lacrosse_api
-from api.Medical import medical_api
-from api.bert import bert
+from api.consultation import consultation_api
 
 # database migrations
 from model.users import initUsers
 from model.players import initPlayers
-from model.crypto import Transactions
 # setup App pages
 from projects.projects import app_projects # Blueprint directory import projects definition
 
@@ -48,18 +36,7 @@ CORS(app, origins=['http://localhost:8090', 'http://localhost:8899', 'https://td
 app.register_blueprint(user_api) # register api routes
 app.register_blueprint(player_api)
 app.register_blueprint(app_projects) # register app pages
-app.register_blueprint(search_api)
-app.register_blueprint(house_api)
-app.register_blueprint(stocks_api)
-app.register_blueprint(crypto_api)
-app.register_blueprint(titanic_api)
-app.register_blueprint(NFL_api)
-app.register_blueprint(haus_api)
-app.register_blueprint(soccer_api)
-app.register_blueprint(NBA_api)
-app.register_blueprint(Lacrosse_api)
-app.register_blueprint(medical_api)
-app.register_blueprint(bert)
+app.register_blueprint(consultation_api)
 
 @app.errorhandler(404)  # catch for URL not found
 def page_not_found(e):
