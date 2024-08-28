@@ -29,7 +29,7 @@ from projects.projects import app_projects # Blueprint directory import projects
 # Initialize the SQLAlchemy object to work with the Flask app instance
 db.init_app(app)
 
-CORS(app, origins=['http://localhost:8090', 'http://localhost:8899', 'https://tdwolff.github.io'], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "SEARCH"])
+CORS(app, origins=['http://localhost:8083', 'http://localhost:8083', 'https://tdwolff.github.io'], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "SEARCH"])
 
 
 # register URIs
