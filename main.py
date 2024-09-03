@@ -1,20 +1,14 @@
-import threading
-
 # import "packages" from flask
-from flask import render_template,request  # import render_template from "public" flask libraries
+from flask import render_template, request, redirect, url_for, flash
 from flask.cli import AppGroup
-from flask import Flask, render_template, request, redirect, url_for, flash
-from migrate import initHouses, initImages
+from flask import Flask
 from flask_cors import CORS
 
-
-
 # import "packages" from "this" project
-from __init__ import app, db, cors  # Definitions initialization
-
+from __init__ import app, db  # Definitions initialization
 
 # setup APIs
-from api.user import user_api # Blueprint import api definition
+from api.user import user_api  # Blueprint import api definition
 from api.player import player_api
 from api.consultation import consultation_api
 
@@ -22,24 +16,22 @@ from api.consultation import consultation_api
 from model.users import initUsers
 from model.players import initPlayers
 # setup App pages
-from projects.projects import app_projects # Blueprint directory import projects definition
-
-
+from projects.projects import app_projects  # Blueprint directory import projects definition
 
 # Initialize the SQLAlchemy object to work with the Flask app instance
 db.init_app(app)
 
-CORS(app, origins=['http://localhost:8083', 'http://localhost:8083', 'https://tdwolff.github.io'], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "SEARCH"])
-
+# Initialize CORS
+cors = CORS(app, origins=['http://localhost:8083', 'http://127.0.0.1:8083', 'https://tdwolff.github.io'], supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "SEARCH"])
 
 # register URIs
-app.register_blueprint(user_api) # register api routes
+app.register_blueprint(user_api)  # register api routes
 app.register_blueprint(player_api)
-app.register_blueprint(app_projects) # register app pages
+app.register_blueprint(app_projects)  # register app pages
 app.register_blueprint(consultation_api)
 
 @app.errorhandler(404)  # catch for URL not found
-def page_not_found(e):
+def page_not_found(_):
     # note that we set the 404 status explicitly
     return render_template('404.html'), 404
 
@@ -77,9 +69,6 @@ def search():
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
-    # Define your site variable here
-    site = {'baseurl': 'http://localhost:8088'}
-
     if request.method == 'POST':
         uid = request.form.get('uid')
         password = request.form.get('password')
@@ -93,45 +82,31 @@ def register():
 
 @app.route('/signin/', methods=['GET', 'POST'])
 def signin():
-    # Define your site variable here
-    site = {'baseurl': 'http://localhost:8088'}
-    return render_template('signin.html', site=site)
+    return render_template('signin.html')
 
 @app.route('/help/', methods=['GET', 'POST'])
 def help():
-    # Define your site variable here
-    site = {'baseurl': 'http://localhost:8088'}
-    return render_template('help.html', site=site)
+    return render_template('help.html')
 
 @app.route('/logout/', methods=['GET', 'POST'])
 def logout():
-    # Define your site variable here
-    site = {'baseurl': 'http://localhost:8088'}
-    return render_template('logout.html', site=site)
+    return render_template('logout.html')
 
 @app.route('/profile/', methods=['GET', 'POST'])
 def profile():
-    # Define your site variable here
-    site = {'baseurl': 'http://localhost:8088'}
-    return render_template('profile.html', site=site)
+    return render_template('profile.html')
 
 @app.route('/display/', methods=['GET'])
 def display():
-    site = {'baseurl': 'http://localhost:8088'}
-    return render_template('getusers.html', site=site)
-
-
-# @app.route('/display/')
-# def display():
-#     return render_template("displayusers.html")
+    return render_template('getusers.html')
 
 @app.before_request
 def before_request():
     # Check if the request came from a specific origin
     allowed_origin = request.headers.get('Origin')
-    if allowed_origin in ['http://localhost:8090', 'http://127.0.0.1:4100', 'https://tdwolff.github.io']:
+    if allowed_origin in ['http://localhost:8083', 'http://127.0.0.1:8083', 'https://tdwolff.github.io']:
         cors._origins = allowed_origin
-        
+
 # Create an AppGroup for custom commands
 custom_cli = AppGroup('custom', help='Custom commands')
 
@@ -141,11 +116,9 @@ def generate_data():
     initUsers()
     initPlayers()
 
-
-
 # Register the custom command group with the Flask application
 app.cli.add_command(custom_cli)
-        
+
 # this runs the application on the development server
 if __name__ == "__main__":
     # change name for testing
